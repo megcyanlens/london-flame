@@ -250,6 +250,42 @@ figcaption { font-size: 0.85rem; color: var(--muted); margin-top: 0.35rem; }
 .role:first-of-type { border-top: 1px solid var(--line); }
 .role h4 { margin: 0 0 0.2rem; font: 600 1.3rem/1.1 var(--display); text-transform: uppercase; letter-spacing: 0.02em; }
 
+/* Support page: answer form and word cloud */
+.need-form { display: grid; gap: 0.5rem; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 1.25rem; margin: 0 0 1rem; }
+.need-form > label, .need-form #name-wrap label { font-weight: 700; }
+.need-form textarea, .need-form input[type="text"] {
+  width: 100%; font: 400 1rem/1.5 var(--body); color: var(--fg); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 8px; padding: 0.65rem 0.8rem; resize: vertical;
+}
+.need-form textarea:focus, .need-form input[type="text"]:focus { outline: none; border-color: var(--accent); }
+.need-form #name-wrap { display: grid; gap: 0.35rem; }
+.need-form #name-wrap[hidden] { display: none; }
+.need-form .count { margin: -0.25rem 0 0; text-align: right; font-variant-numeric: tabular-nums; }
+.need-form .who { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+.need-form .who legend { font-weight: 700; padding: 0; margin-bottom: 0.35rem; width: 100%; }
+.need-form .who label { display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; }
+.need-form .who input { accent-color: var(--accent); width: 1.05rem; height: 1.05rem; }
+.need-form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.btn {
+  justify-self: start; margin-top: 0.4rem; font: 700 1rem/1 var(--body); color: var(--accent-ink); background: var(--accent);
+  border: 0; border-radius: 999px; padding: 0.75rem 1.3rem; cursor: pointer;
+}
+.btn:disabled { opacity: 0.6; cursor: wait; }
+.form-msg { margin: 0; min-height: 1.6em; font-weight: 600; }
+.form-msg.bad { color: var(--link); }
+.wordcloud { position: relative; height: 24rem; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; margin: 0 0 1rem; }
+@media (max-width: 520px) { .wordcloud { height: 20rem; } }
+.wordcloud span { position: absolute; visibility: hidden; white-space: nowrap; line-height: 1; padding: 0.08em 0.12em; font-family: var(--display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.01em; cursor: default; }
+.wordcloud .w1 { color: var(--accent); }
+.wordcloud .w2 { color: var(--fg); }
+.wordcloud .w3 { color: var(--muted); font-weight: 600; }
+.wordcloud .alt { color: var(--link); }
+.wordcloud .empty { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; color: var(--muted); }
+.answers { list-style: none; padding: 0; border-top: 1px solid var(--line); }
+.answers li { padding: 0.75rem 0; margin: 0; border-bottom: 1px solid var(--line); }
+.answers li p { margin: 0 0 0.2rem; }
+.answers .by { font-size: 0.85rem; color: var(--muted); }
+
 footer { border-top: 1px solid var(--line); padding-block: 2rem; color: var(--muted); font-size: 0.9rem; }
 footer .wrap { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; justify-content: space-between; }
 

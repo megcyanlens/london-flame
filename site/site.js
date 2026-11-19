@@ -21,7 +21,8 @@ var NAV = {
       ['Referee cheat sheet', 'referee.html'], ['Reffing tracker', 'ref-tracker.html'] ] },
     { title: 'Committee', href: 'committee.html', items: [
       ['Internal docs', 'internal-docs'], ['Committee members', 'roles'], ['Open roles', 'open-roles'],
-      ['Team captains', 'captains'], ['Coaching staff', 'coaches'], ['Pitch booking', 'pitch-booking'] ] }
+      ['Team captains', 'captains'], ['Coaching staff', 'coaches'], ['Pitch booking', 'pitch-booking'],
+      ['What do you need?', 'support.html'] ] }
   ]
 };
 

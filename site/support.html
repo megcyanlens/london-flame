@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>What do you need? · London Flame</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="What do you need when you&#39;re struggling? Share a few words, with your name or anonymously, and see everyone&#39;s answers as a word cloud.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://ldnflame.com/support">
+<meta property="og:url" content="https://ldnflame.com/support">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#141210">
+<meta property="og:site_name" content="London Flame">
+<meta property="og:type" content="website">
+<meta property="og:title" content="What do you need? · London Flame">
+<meta property="og:description" content="What do you need when you&#39;re struggling? Share a few words, with your name or anonymously, and see everyone&#39;s answers as a word cloud.">
+<meta property="og:image" content="https://ldnflame.com/images/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Figtree:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body data-page="support">
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="London Flame home">
+      <img src="images/logo.svg" alt="London Flame" width="135" height="66">
+    </a>
+    <nav class="bar-links" aria-label="Quick links">
+      <a href="calendars.html">Calendar</a>
+      <a href="index.html#payment">Pay</a>
+      <a class="cta" href="index.html#join">Join</a>
+      <button class="menu-btn" type="button" aria-expanded="false">Menu</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap page" id="top">
+  <aside class="toc" aria-label="Site navigation">
+    <nav id="site-nav"><a href="index.html">Club</a> <a href="team.html">WFFL Team</a> <a href="committee.html">Committee</a></nav>
+  </aside>
+
+  <main>
+    <div class="hero hero-sm">
+      <p class="kicker">London Flame · Committee</p>
+      <h1>What do you need?</h1>
+      <p class="lede">What do you need when you’re struggling? Tell us in a few words. It helps the committee understand how we can look after each other.</p>
+    </div>
+
+    <section id="share">
+      <h2>Share your answer</h2>
+      <form id="need-form" class="need-form" novalidate>
+        <label for="need-text">What do you need when you’re struggling?</label>
+        <textarea id="need-text" name="text" maxlength="200" rows="3" required placeholder="e.g. someone to check in, a walk, space to talk"></textarea>
+        <p class="note count" id="need-count">0 / 200</p>
+
+        <fieldset class="who">
+          <legend>Share as</legend>
+          <label><input type="radio" name="who" value="anon" checked> Anonymous</label>
+          <label><input type="radio" name="who" value="named"> With my name</label>
+        </fieldset>
+        <div id="name-wrap" hidden>
+          <label for="need-name">Your name</label>
+          <input id="need-name" name="name" type="text" maxlength="40" autocomplete="given-name">
+        </div>
+
+        <!-- Spam trap: hidden from people, bots fill it in -->
+        <div class="hp" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+
+        <button type="submit" class="btn" id="need-submit">Add my answer</button>
+        <p class="form-msg" id="need-msg" role="status" aria-live="polite"></p>
+      </form>
+      <p class="note">Answers appear on this page, which anyone with the link can see. Please don’t include anything you wouldn’t want shared.</p>
+      <p class="callout">Need help right now? Talk to a captain or anyone on the <a href="committee.html#roles">committee</a>, or see our <a href="safeguarding.html">safeguarding policy</a>. Samaritans are free, any time, on <a href="tel:116123">116 123</a>.</p>
+    </section>
+
+    <section id="cloud">
+      <h2>What we need</h2>
+      <p class="note" id="cloud-summary">Loading answers…</p>
+      <div class="wordcloud" id="wordcloud" role="img" aria-label="Word cloud of everyone's answers"></div>
+    </section>
+
+    <section id="answers">
+      <h2>Everyone’s answers</h2>
+      <ul class="answers" id="answer-list"></ul>
+    </section>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>London Flame · Women's flag football · Clapham Common, London</span>
+    <span>committee.ldnflame@gmail.com</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="site.js"></script>
+<script>
+(function () {
+  var API = '/api/needs';
+  var form = document.getElementById('need-form');
+  var text = document.getElementById('need-text');
+  var count = document.getElementById('need-count');
+  var nameWrap = document.getElementById('name-wrap');
+  var nameInput = document.getElementById('need-name');
+  var msg = document.getElementById('need-msg');
+  var submit = document.getElementById('need-submit');
+  var cloud = document.getElementById('wordcloud');
+  var summary = document.getElementById('cloud-summary');
+  var list = document.getElementById('answer-list');
+  var answers = [];
+
+  // Words left out of the cloud: everyday words, and words that just echo the question
+  var STOP = ('a about after again all also am an and any are as at be because been being but by can could do does doing ' +
+    'for from get getting go going had has have having he her here him his how i if im i\'m in into is it it\'s its ' +
+    'just know let like make me more most much my myself need needs needed no not of off on one or other our out ' +
+    'over really she so some something someone\'s struggle struggling such than that the their them then there these they ' +
+    'thing things this those to too up us very want wanted was we were what when where which while who why will with ' +
+    'would you your you\'re feel feeling sometimes usually maybe bit lot lots even still dont don\'t cant can\'t without').split(' ');
+  var stop = {}; STOP.forEach(function (w) { stop[w] = 1; });
+
+  text.addEventListener('input', function () { count.textContent = text.value.length + ' / 200'; });
+  form.addEventListener('change', function (e) {
+    if (e.target.name !== 'who') return;
+    var named = form.who.value === 'named';
+    nameWrap.hidden = !named;
+    if (named) nameInput.focus();
+  });
+
+  function say(t, bad) { msg.textContent = t; msg.classList.toggle('bad', !!bad); }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var t = text.value.trim();
+    var named = form.who.value === 'named';
+    var n = named ? nameInput.value.trim() : '';
+    if (t.length < 2) { say('Please write a few words first.', true); text.focus(); return; }
+    if (named && !n) { say('Add your name, or choose Anonymous.', true); nameInput.focus(); return; }
+    submit.disabled = true; say('Sending…');
+    fetch(API, { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ text: t, name: n, website: form.website.value }) })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok) throw new Error(res.d.error || 'Something went wrong. Please try again.');
+        if (res.d.answer) answers.unshift(res.d.answer);
+        form.reset(); nameWrap.hidden = true; count.textContent = '0 / 200';
+        say('Thank you. Your answer is in the cloud below.');
+        render();
+        document.getElementById('cloud').scrollIntoView({ behavior: 'smooth' });
+      })
+      .catch(function (err) { say(err.message || 'Something went wrong. Please try again.', true); })
+      .then(function () { submit.disabled = false; });
+  });
+
+  function words() {
+    var c = {};
+    answers.forEach(function (a) {
+      var seen = {};
+      (a.text.toLowerCase().replace(/[’‘]/g, "'").match(/[a-zÀ-ɏ]+(?:'[a-z]+)?/g) || []).forEach(function (w) {
+        w = w.replace(/'s$/, '');
+        if (w.length < 3 || stop[w] || seen[w]) return;
+        seen[w] = 1; c[w] = (c[w] || 0) + 1;
+      });
+    });
+    return Object.keys(c).map(function (w) { return [w, c[w]]; })
+      .sort(function (a, b) { return b[1] - a[1] || a[0].localeCompare(b[0]); }).slice(0, 80);
+  }
+
+  // Place each word on a spiral out from the centre, skipping spots that overlap a word already placed
+  function drawCloud() {
+    cloud.innerHTML = '';
+    var ws = words();
+    if (!ws.length) { cloud.innerHTML = '<p class="empty">The cloud fills in as answers come in.</p>'; return; }
+    var W = cloud.clientWidth, H = cloud.clientHeight, max = ws[0][1], min = ws[ws.length - 1][1];
+    var small = W < 500 ? 0.95 : 1.05, big = W < 500 ? 2.6 : 4;
+    var placed = [];
+    ws.forEach(function (pair, i) {
+      var t = max === min ? 1 : (pair[1] - min) / (max - min);
+      var size = small + (big - small) * Math.sqrt(t);
+      var s = document.createElement('span');
+      s.textContent = pair[0];
+      s.title = pair[0] + ': ' + pair[1] + (pair[1] === 1 ? ' answer' : ' answers');
+      s.style.fontSize = size + 'rem';
+      s.className = t > 0.66 ? 'w1' : t > 0.33 ? 'w2' : 'w3';
+      if (i % 5 === 3 && t < 0.5) s.className += ' alt';
+      cloud.appendChild(s);
+      var w = s.offsetWidth, h = s.offsetHeight;
+      for (var k = 0; k < 2500; k++) {
+        var ang = k * 0.35, rad = 2.2 * ang;
+        var x = W / 2 + rad * Math.cos(ang) * 1.6 - w / 2;
+        var y = H / 2 + rad * Math.sin(ang) - h / 2;
+        if (x < 0 || y < 0 || x + w > W || y + h > H) continue;
+        var box = { x: x, y: y, w: w, h: h };
+        if (placed.some(function (p) { return x < p.x + p.w && x + w > p.x && y < p.y + p.h && y + h > p.y; })) continue;
+        placed.push(box); s.style.left = x + 'px'; s.style.top = y + 'px'; s.style.visibility = 'visible';
+        return;
+      }
+      s.remove(); // no room left for this one
+    });
+  }
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  function render(failed) {
+    var n = answers.length;
+    if (!failed) summary.textContent = n ? n + (n === 1 ? ' answer' : ' answers') + ' so far. Bigger words came up more often.' : 'No answers yet. Be the first.';
+    drawCloud();
+    list.innerHTML = answers.map(function (a) {
+      return '<li><p>' + esc(a.text) + '</p><span class="by">' + (a.name ? esc(a.name) : 'Anonymous') + '</span></li>';
+    }).join('') || '<li class="muted">Nothing here yet.</li>';
+  }
+
+  var resizeT, lastW = 0;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeT);
+    resizeT = setTimeout(function () { if (cloud.clientWidth !== lastW) { lastW = cloud.clientWidth; drawCloud(); } }, 150);
+  });
+
+  fetch(API, { cache: 'no-store' })
+    .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.error); return d; }); })
+    .then(function (d) { answers = d.answers || []; lastW = cloud.clientWidth; render(); })
+    .catch(function (err) {
+      summary.textContent = err.message || 'Couldn’t load answers right now.';
+      render(true);
+    });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (answers.length) drawCloud(); });
+})();
+</script>
+
+</body>
+</html>
