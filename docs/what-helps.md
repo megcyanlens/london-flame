@@ -2,9 +2,9 @@
 
 https://ldnflame.com/what-helps asks **"What do you need when you're struggling?"**. It was made for a small club workshop.
 
-- People write an answer (up to 500 characters) and either stay anonymous or share their name.
-- Every answer appears straight away as a **bubble** on the page, newest first, showing the name or "Anonymous". There's no approval step.
-- Each bubble has five reactions: **👍**, **🙋 Same**, **📝** (note), **❤️** and **⭐**. Each device can give each reaction once per bubble; tapping again takes it back.
+- People write an answer (up to 500 characters). There's an optional name box on the same line as **Share**; leave it blank to post as "Anonymous". The name stays filled in after sharing, for anyone posting more than one answer.
+- After **Share**, the page scrolls down to "What our team said". Every answer appears straight away as a **bubble** there, newest first, showing the name or "Anonymous". There's no approval step.
+- Each bubble has four reactions, in this order: **❤️‍🔥** (heart on fire), **⭐**, **🙋 Same** and **📝 Noted**, then **💬 Comment**. (👍 was removed from the page; any old 👍 reactions stay in the database but aren't shown.) Each device can give each reaction once per bubble; tapping again takes it back.
 - **💬 Comment** opens the bubble's comments and a box to add one: up to **50 words**, with an optional name (blank shows "Anonymous").
 - The page refreshes every 8 seconds, so everyone in the room sees new answers, reactions and comments appear. An open comment box keeps its text through refreshes.
 

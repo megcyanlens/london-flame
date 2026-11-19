@@ -8,20 +8,18 @@
   var form = document.getElementById('wh-form');
   var answer = document.getElementById('wh-answer');
   var counter = document.getElementById('wh-count');
-  var named = document.getElementById('wh-named');
-  var nameWrap = document.getElementById('wh-name-wrap');
-  var nameInput = document.getElementById('wh-name');
+  var nameInput = document.getElementById('wh-name'); // optional; blank posts as Anonymous
   var submit = document.getElementById('wh-submit');
   var status = document.getElementById('wh-status');
   var list = document.getElementById('wh-bubbles');
   var total = document.getElementById('wh-total');
   // [kind, emoji, label shown next to the emoji ('' for none), name for screen readers]
+  // Shown in this order, followed by 💬 Comment. ('up' / 👍 still exists in the database but isn't offered.)
   var REACTIONS = [
-    ['up', '👍', '', 'Thumbs up'],
+    ['heart', '❤️‍🔥', '', 'Heart on fire'],
+    ['star', '⭐', '', 'Star'],
     ['same', '🙋', 'Same', 'Same'],
-    ['note', '📝', '', 'Note'],
-    ['heart', '❤️', '', 'Heart'],
-    ['star', '⭐', '', 'Star']
+    ['note', '📝', 'Noted', 'Noted']
   ];
 
   // A random id for this device, so each person reacts once per answer. Falls back to a per-visit id if storage is blocked.
@@ -43,8 +41,10 @@
   }
   function wordCount(s) { var t = s.trim(); return t ? t.split(/\s+/).length : 0; }
 
+  // Only speaks up when the board is empty (or failed to load); no running count
   function setTotal(n) {
-    total.textContent = n === 0 ? 'No answers yet. Be the first.' : n === 1 ? '1 answer so far.' : n + ' answers so far.';
+    total.textContent = n === 0 ? 'No answers yet. Be the first.' : '';
+    total.hidden = n !== 0;
   }
 
   function updateReactions(li, counts, mine) {
@@ -153,7 +153,9 @@
 
   function load() {
     return fetch(API + '?client=' + encodeURIComponent(client)).then(function (r) { return r.json(); }).then(function (d) { render(d); })
-      .catch(function () { if (firstLoad) total.textContent = "The answers couldn't load. Refresh the page to try again."; });
+      .catch(function () {
+        if (firstLoad) { total.hidden = false; total.textContent = "The answers couldn't load. Refresh the page to try again."; }
+      });
   }
 
   function post(body) {
@@ -216,38 +218,31 @@
     }).then(function () { send.disabled = false; });
   });
 
-  answer.addEventListener('input', function () { counter.textContent = answer.value.length + ' / ' + MAX; });
-
-  Array.prototype.forEach.call(form.querySelectorAll('input[name="who"]'), function (r) {
-    r.addEventListener('change', function () {
-      nameWrap.hidden = !named.checked;
-      if (named.checked) nameInput.focus();
-    });
-  });
+  answer.addEventListener('input', function () { counter.textContent = answer.value.length + '/' + MAX; });
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var text = answer.value.trim();
+    var name = nameInput.value.trim();
     if (text.length < 2) { status.textContent = 'Write a few words before sending.'; answer.focus(); return; }
-    if (named.checked && !nameInput.value.trim()) { status.textContent = 'Add your name, or choose "Stay anonymous".'; nameInput.focus(); return; }
 
     submit.disabled = true;
     status.textContent = 'Sending…';
     post({
       action: 'answer',
       answer: text,
-      anonymous: !named.checked,
-      name: named.checked ? nameInput.value.trim() : '',
+      anonymous: !name,
+      name: name,
       website: document.getElementById('wh-website').value
     }).then(function (res) {
       if (!res.ok) { status.textContent = res.data.error || 'Something went wrong. Please try again.'; return; }
       render(res.data, res.data.id);
-      form.reset();
-      nameWrap.hidden = true;
-      counter.textContent = '0 / ' + MAX;
+      answer.value = ''; // keep the name filled in, in case they share again
+      counter.textContent = '0/' + MAX;
       status.textContent = 'Thank you. Your answer is up.';
-      var mine = bubbles[res.data.id];
-      if (mine) mine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Take them to the answers; their new bubble is first and outlined
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      document.getElementById('answers').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
     }).catch(function () {
       status.textContent = "Couldn't send. Check your connection and try again.";
     }).then(function () { submit.disabled = false; });

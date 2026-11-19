@@ -22,9 +22,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Figtree:ital,wght@0,400;0,600;0,700;1,400&display=swap">
-<link rel="stylesheet" href="site.css?v=3af34760">
+<link rel="stylesheet" href="site.css?v=5ac68c28">
 </head>
-<body data-page="what-helps">
+<body data-page="what-helps" data-no-copy-links>
 
 <header class="bar">
   <div class="wrap">
@@ -53,32 +53,23 @@
 
     <section id="share">
       <form class="wh-form" id="wh-form" novalidate>
-        <label class="wh-label" for="wh-answer">Your answer</label>
-        <textarea id="wh-answer" name="answer" rows="4" maxlength="500" required
+        <label class="sr-only" for="wh-answer">Your answer</label>
+        <textarea id="wh-answer" name="answer" rows="3" maxlength="500" required
           placeholder="e.g. someone to talk things through, a bit of space, howl at the moon, a nap..."></textarea>
-        <div class="wh-row">
-          <span class="note" id="wh-count">0 / 500</span>
-        </div>
 
-        <fieldset class="wh-who">
-          <legend class="wh-label">Who's answering?</legend>
-          <label class="wh-choice"><input type="radio" name="who" id="wh-anon" value="anon" checked> Stay anonymous</label>
-          <label class="wh-choice"><input type="radio" name="who" id="wh-named" value="named"> Share my name</label>
-          <div class="wh-name" id="wh-name-wrap" hidden>
-            <label class="wh-label" for="wh-name">Your name</label>
-            <input type="text" id="wh-name" name="name" maxlength="60" autocomplete="name">
-          </div>
-        </fieldset>
+        <!-- one line: optional name (blank = Anonymous), character count, Share -->
+        <div class="wh-send">
+          <label class="sr-only" for="wh-name">Your name (optional)</label>
+          <input type="text" id="wh-name" name="name" maxlength="60" autocomplete="name" placeholder="Your name - optional">
+          <span class="note" id="wh-count" aria-live="off">0/500</span>
+          <button type="submit" class="wh-submit" id="wh-submit">Share</button>
+        </div>
+        <p class="wh-status" id="wh-status" role="status" aria-live="polite"></p>
 
         <!-- left empty by people; bots fill it in -->
         <div class="wh-hp" aria-hidden="true">
           <label for="wh-website">Website</label>
           <input type="text" id="wh-website" name="website" tabindex="-1" autocomplete="off">
-        </div>
-
-        <div class="wh-actions">
-          <button type="submit" class="wh-submit" id="wh-submit">Share</button>
-          <p class="wh-status" id="wh-status" role="status" aria-live="polite"></p>
         </div>
       </form>
     </section>
@@ -100,7 +91,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="site.js?v=f3f1363b"></script>
-<script src="what-helps.js?v=ec186569"></script>
+<script src="site.js?v=1b990692"></script>
+<script src="what-helps.js?v=173905c8"></script>
 </body>
 </html>

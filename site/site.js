@@ -133,8 +133,10 @@ var NAV = {
     document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} ta.remove();
   }
 
-  // "Copy link" button on every section and sub-section heading with an id
-  document.querySelectorAll('section[id] > h2, article h2[id], h3[id]').forEach(function (h) {
+  // "Copy link" button on every section and sub-section heading with an id.
+  // A page can opt out with <body data-no-copy-links> (e.g. the What helps workshop page).
+  var headings = document.body.hasAttribute('data-no-copy-links') ? [] : document.querySelectorAll('section[id] > h2, article h2[id], h3[id]');
+  Array.prototype.forEach.call(headings, function (h) {
     var id = h.id || h.parentElement.id;
     var b = document.createElement('button');
     b.type = 'button'; b.className = 'anchor'; b.textContent = '# copy link';
