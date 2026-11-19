@@ -15,6 +15,7 @@ Set up in Cloudflare → ldnflame.com → **Email → Email Routing**.
 
 - **Destination addresses:** `committee.ldnflame@gmail.com` (must show *Verified*).
 - **Routing rules:** custom address `committee@ldnflame.com` → *Send to an email* → `committee.ldnflame@gmail.com`.
+- **`info@ldnflame.com`** is the public address in the footer of every page except the Committee and What helps pages (which show `committee@`), and in the JustGo "CC" instructions. It needs its own routing rule, `info` → `committee.ldnflame@gmail.com`, unless the catch-all rule below is on.
 - Optional **catch-all** rule: forwards anything else `@ldnflame.com` (including typos) to the same inbox.
 
 **Add a new address** (e.g. `kit@ldnflame.com`): Routing rules → **Create address** → enter `kit` → send to the right Gmail. If it should go to a different person's inbox, add their address under *Destination addresses* first; they must click Cloudflare's verification email before forwarding works.

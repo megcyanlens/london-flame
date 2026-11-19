@@ -29,5 +29,5 @@ Keep anything private (notes, drafts, passwords) **out of `site/`**: every file 
 ## The 30-second version
 
 1. Edit the HTML file for the page you want to change, in `site/`.
-2. Deploy from this folder: `npx wrangler pages deploy --branch=main` (details in [docs/deploying.md](docs/deploying.md)).
+2. Deploy from this folder: `node tools/bust-cache.js`, then `npx wrangler pages deploy --branch=main` (details in [docs/deploying.md](docs/deploying.md)).
 3. Check https://ldnflame.com, then commit and push your change to GitHub.

@@ -18,10 +18,13 @@ The site is deployed by uploading the `site/` folder, plus the `functions/` endp
 From the repository's top folder:
 
 ```bash
+node tools/bust-cache.js
 npx wrangler pages deploy --branch=main
 ```
 
-It reads `wrangler.toml`, which says to publish `site/`, include the `functions/` endpoints, and connect them to the `ldnflame-responses` database. Always run it from the top folder, so it finds that file.
+The first line stamps each page's links to `site.css` and the `.js` files with a version (e.g. `site.css?v=82e7e299`) that changes whenever the file changes. **Don't skip it after editing CSS or JavaScript.** Cloudflare lets browsers keep those files for 4 hours, so without new versions people can get a new page with an old script, and things break (for example, forms that won't send). It only touches pages whose files changed, and it's safe to run every time.
+
+The second line reads `wrangler.toml`, which says to publish `site/`, include the `functions/` endpoints, and connect them to the `ldnflame-responses` database. Always run it from the top folder, so it finds that file.
 
 To try a change before it goes live, deploy to a preview branch instead, e.g. `--branch=preview`. Cloudflare gives it its own `…ldnflame.pages.dev` address and leaves ldnflame.com untouched. Previews share the real database, so delete any test answers afterwards (see [what-helps.md](what-helps.md)).
 

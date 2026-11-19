@@ -18,11 +18,26 @@ CREATE INDEX IF NOT EXISTS idx_responses_question ON responses (question, hidden
 CREATE INDEX IF NOT EXISTS idx_responses_client ON responses (client_hash, created_at);
 CREATE INDEX IF NOT EXISTS idx_responses_client_id ON responses (client_id, created_at);
 
--- 👍 and 🙋 "same" reactions: one of each per device per answer
+-- Emoji reactions (👍 up, 🙋 same, 📝 note, ❤️ heart, ⭐ star): one of each per device per answer
 CREATE TABLE IF NOT EXISTS reactions (
   response_id INTEGER NOT NULL REFERENCES responses (id) ON DELETE CASCADE,
-  kind        TEXT    NOT NULL CHECK (kind IN ('up', 'same')),
+  kind        TEXT    NOT NULL CHECK (kind IN ('up', 'same', 'note', 'heart', 'star')),
   client_id   TEXT    NOT NULL,
   created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
   PRIMARY KEY (response_id, kind, client_id)
 );
+
+-- Short comments (up to 50 words) on answers
+CREATE TABLE IF NOT EXISTS comments (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  response_id INTEGER NOT NULL REFERENCES responses (id) ON DELETE CASCADE,
+  body        TEXT    NOT NULL,
+  name        TEXT,                                   -- NULL shows as "Anonymous"
+  created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+  hidden      INTEGER NOT NULL DEFAULT 0,             -- set to 1 to take a comment off the page
+  client_hash TEXT,
+  client_id   TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_comments_response ON comments (response_id, hidden);
+CREATE INDEX IF NOT EXISTS idx_comments_client_id ON comments (client_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_comments_client ON comments (client_hash, created_at);

@@ -4,29 +4,30 @@ https://ldnflame.com/what-helps asks **"What do you need when you're struggling?
 
 - People write an answer (up to 500 characters) and either stay anonymous or share their name.
 - Every answer appears straight away as a **bubble** on the page, newest first, showing the name or "Anonymous". There's no approval step.
-- Each bubble has two reactions: **👍** and **🙋 Same**. Each device can give each reaction once per bubble; tapping again takes it back.
-- The page refreshes the bubbles every 8 seconds, so everyone in the room sees new answers and reaction counts appear.
+- Each bubble has five reactions: **👍**, **🙋 Same**, **📝** (note), **❤️** and **⭐**. Each device can give each reaction once per bubble; tapping again takes it back.
+- **💬 Comment** opens the bubble's comments and a box to add one: up to **50 words**, with an optional name (blank shows "Anonymous").
+- The page refreshes every 8 seconds, so everyone in the room sees new answers, reactions and comments appear. An open comment box keeps its text through refreshes.
 
 It's listed in the sidebar under **Committee**. It's hidden from Google (`noindex`) and isn't in the sitemap, so share the link directly.
 
 ## What's public
 
-Anyone with the link sees every visible answer, the name if the person shared it, and the reaction counts. Hidden answers (see below) disappear from everyone's screen within a few seconds.
+Anyone with the link sees every visible answer and comment, names where people shared them, and reaction counts. Hidden answers and comments (see below) disappear from everyone's screen within a few seconds.
 
 ## How it works
 
 ```
 site/what-helps.html          the page (form + bubbles)
-site/what-helps.js            sends answers and reactions, draws and refreshes the bubbles
+site/what-helps.js            sends answers, reactions and comments; draws and refreshes the bubbles
 functions/api/what-helps.js   the /api/what-helps endpoint
 db/schema.sql                 the database tables (for setting up from scratch)
 db/migrations/                changes applied to the existing database, in order
 wrangler.toml                 tells Cloudflare which database the endpoint uses
 ```
 
-- Everything is stored in the Cloudflare **D1** database **`ldnflame-responses`**: answers in `responses`, reactions in `reactions`.
-- Each browser gets a random id, saved on that device, which is used to keep reactions to one per person and to limit answers. No accounts or logins are involved.
-- Spam protection: a hidden field bots fill in (those answers are discarded); at most **10 answers per device per hour**; and at most **150 per internet connection per hour**. That's generous because a whole workshop room on the same Wi-Fi shares one connection. The IP address itself is never stored, only a hash that changes daily.
+- Everything is stored in the Cloudflare **D1** database **`ldnflame-responses`**: answers in `responses`, reactions in `reactions` (kinds `up`, `same`, `note`, `heart`, `star`), comments in `comments`.
+- Each browser gets a random id, saved on that device, which is used to keep reactions to one per person and to limit posting. No accounts or logins are involved.
+- Spam protection: a hidden field bots fill in (those answers are discarded). Per hour, each device can post at most **10 answers** and **30 comments**; each internet connection can post at most 150 answers and 400 comments. Those caps are generous because a whole workshop room on the same Wi-Fi shares one connection. The IP address itself is never stored, only a hash that changes daily.
 
 ## Read the answers
 
@@ -34,33 +35,41 @@ Cloudflare dashboard → **Storage & Databases → D1 SQL Database → `ldnflame
 
 ```sql
 SELECT r.id, r.created_at, r.name, r.answer,
-  (SELECT COUNT(*) FROM reactions x WHERE x.response_id = r.id AND x.kind = 'up')   AS thumbs_up,
-  (SELECT COUNT(*) FROM reactions x WHERE x.response_id = r.id AND x.kind = 'same') AS same
+  (SELECT COUNT(*) FROM reactions x WHERE x.response_id = r.id) AS reactions,
+  (SELECT COUNT(*) FROM comments c WHERE c.response_id = r.id AND c.hidden = 0) AS comments
 FROM responses r
 WHERE r.hidden = 0
-ORDER BY same + thumbs_up DESC;
+ORDER BY reactions DESC;
 ```
 
 `name` is empty (NULL) for anonymous answers. Sorting by reactions shows what resonated most, which is handy for the end of a workshop.
 
-Or from a terminal in this repository:
+Reactions broken down by type:
 
-```bash
-npx wrangler d1 execute ldnflame-responses --remote --command="SELECT id, created_at, name, answer FROM responses ORDER BY id DESC"
+```sql
+SELECT response_id, kind, COUNT(*) AS n FROM reactions GROUP BY response_id, kind ORDER BY response_id, kind;
 ```
 
-## Remove an answer
+All comments, with the answer they belong to:
+
+```sql
+SELECT c.id, c.response_id, c.created_at, c.name, c.body FROM comments c ORDER BY c.response_id, c.id;
+```
+
+## Remove an answer or comment
 
 Hide it (keeps a record, removes it from everyone's screen within seconds):
 
 ```sql
-UPDATE responses SET hidden = 1 WHERE id = 12;
+UPDATE responses SET hidden = 1 WHERE id = 12;   -- an answer (its comments disappear with it)
+UPDATE comments  SET hidden = 1 WHERE id = 34;   -- a single comment
 ```
 
-To delete it and its reactions completely:
+To delete an answer completely, with its reactions and comments:
 
 ```sql
 DELETE FROM reactions WHERE response_id = 12;
+DELETE FROM comments  WHERE response_id = 12;
 DELETE FROM responses WHERE id = 12;
 ```
 
@@ -75,6 +84,12 @@ UPDATE responses SET hidden = 1 WHERE question = 'struggling';
 1. In `site/what-helps.html`, change the `<h1>`, the placeholder text in the answer box, and the `<title>` and description tags at the top.
 2. In `functions/api/what-helps.js`, change `const QUESTION = 'struggling';` to a new short label (e.g. `'proud'`), so the new question starts with an empty board and the old answers are kept separately.
 3. Deploy (see [deploying.md](deploying.md)).
+
+## Add or change a reaction
+
+1. Add it to `REACTIONS` in `site/what-helps.js` and `KINDS` in `functions/api/what-helps.js`, using a short lowercase name.
+2. The database only accepts the listed kinds, so add a migration in `db/migrations/` that rebuilds the `reactions` table with the new name in its `CHECK (kind IN (...))` list (copy `0003_more_reactions.sql`), apply it with `npx wrangler d1 execute ldnflame-responses --remote --file=...`, and update `db/schema.sql` to match.
+3. Deploy.
 
 ## If the database ever needs recreating
 
