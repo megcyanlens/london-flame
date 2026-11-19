@@ -1,0 +1,10 @@
+# Cloudflare Pages project config. `site/` is published as-is; `functions/` becomes the /api endpoints.
+name = "ldnflame"
+pages_build_output_dir = "site"
+compatibility_date = "2025-03-01"
+
+# Responses to the "What helps" page (site/what-helps.html). See docs/what-helps.md.
+[[d1_databases]]
+binding = "DB"
+database_name = "ldnflame-responses"
+database_id = "6fe42417-466f-4ead-9b23-c4443437b812"

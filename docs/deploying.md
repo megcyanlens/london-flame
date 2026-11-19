@@ -1,6 +1,6 @@
 # Putting changes live
 
-The site is deployed by uploading the `site/` folder to the Cloudflare Pages project **`ldnflame`**. It takes about 10 seconds. Pushing to GitHub does **not** deploy by itself.
+The site is deployed by uploading the `site/` folder, plus the `functions/` endpoints, to the Cloudflare Pages project **`ldnflame`**. It takes about 10 seconds. Pushing to GitHub does **not** deploy by itself.
 
 ## One-time setup on a new computer
 
@@ -18,8 +18,12 @@ The site is deployed by uploading the `site/` folder to the Cloudflare Pages pro
 From the repository's top folder:
 
 ```bash
-npx wrangler pages deploy site --project-name=ldnflame --branch=main
+npx wrangler pages deploy --branch=main
 ```
+
+It reads `wrangler.toml`, which says to publish `site/`, include the `functions/` endpoints, and connect them to the `ldnflame-responses` database. Always run it from the top folder, so it finds that file.
+
+To try a change before it goes live, deploy to a preview branch instead, e.g. `--branch=preview`. Cloudflare gives it its own `…ldnflame.pages.dev` address and leaves ldnflame.com untouched. Previews share the real database, so delete any test answers afterwards (see [what-helps.md](what-helps.md)).
 
 When it prints `Deployment complete!`, the change is live on https://ldnflame.com, usually within a minute. Do a hard refresh (Ctrl+F5 / Cmd+Shift+R) if you still see the old version.
 

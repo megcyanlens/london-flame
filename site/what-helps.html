@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>What helps · London Flame</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex">
+<meta name="description" content="What do you need when you're struggling? Share a few words, anonymously or with your name, and see the club's answers as a word cloud.">
+<link rel="canonical" href="https://ldnflame.com/what-helps">
+<meta property="og:url" content="https://ldnflame.com/what-helps">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#141210">
+<meta property="og:site_name" content="London Flame">
+<meta property="og:type" content="website">
+<meta property="og:title" content="What helps · London Flame">
+<meta property="og:description" content="What do you need when you're struggling? Share a few words, anonymously or with your name, and see the club's answers as a word cloud.">
+<meta property="og:image" content="https://ldnflame.com/images/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Figtree:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body data-page="what-helps">
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="London Flame home">
+      <img src="images/logo.svg" alt="London Flame" width="135" height="66">
+    </a>
+    <nav class="bar-links" aria-label="Quick links">
+      <a href="calendars.html">Calendar</a>
+      <a href="index.html#payment">Pay</a>
+      <a class="cta" href="index.html#join">Join</a>
+      <button class="menu-btn" type="button" aria-expanded="false">Menu</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap page" id="top">
+  <aside class="toc" aria-label="Site navigation">
+    <nav id="site-nav"><a href="index.html">Club</a> <a href="team.html">WFFL Team</a> <a href="committee.html">Committee</a></nav>
+  </aside>
+
+  <main>
+    <div class="hero hero-sm">
+      <p class="kicker">London Flame · Committee</p>
+      <h1>What do you need when you're struggling?</h1>
+      <p class="lede">Share a few words. Every answer adds to the word cloud below, so we can see what support matters most to the club.</p>
+    </div>
+
+    <section id="share">
+      <form class="wh-form" id="wh-form" novalidate>
+        <label class="wh-label" for="wh-answer">Your answer</label>
+        <textarea id="wh-answer" name="answer" rows="3" maxlength="200" required
+          placeholder="e.g. someone to check in, a walk, time to talk, space"></textarea>
+        <div class="wh-row">
+          <span class="note" id="wh-count">0 / 200</span>
+        </div>
+
+        <fieldset class="wh-who">
+          <legend class="wh-label">Who's answering?</legend>
+          <label class="wh-choice"><input type="radio" name="who" id="wh-anon" value="anon" checked> Stay anonymous</label>
+          <label class="wh-choice"><input type="radio" name="who" id="wh-named" value="named"> Share my name with the committee</label>
+          <div class="wh-name" id="wh-name-wrap" hidden>
+            <label class="wh-label" for="wh-name">Your name</label>
+            <input type="text" id="wh-name" name="name" maxlength="60" autocomplete="name">
+          </div>
+        </fieldset>
+
+        <!-- left empty by people; bots fill it in -->
+        <div class="wh-hp" aria-hidden="true">
+          <label for="wh-website">Website</label>
+          <input type="text" id="wh-website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+
+        <p class="note wh-privacy">Only the word cloud is shown on this page. Your full answer, and your name if you share it, are seen only by the committee.</p>
+
+        <div class="wh-actions">
+          <button type="submit" class="wh-submit" id="wh-submit">Add to the cloud</button>
+          <p class="wh-status" id="wh-status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+
+    <section id="cloud">
+      <h2>What the club said</h2>
+      <p class="note" id="wh-total">Loading answers…</p>
+      <ul class="wh-cloud" id="wh-cloud" aria-label="Most common words in the answers"></ul>
+    </section>
+
+    <section id="support">
+      <h2>Need support now?</h2>
+      <p>You don't have to wait for anyone to ask. Talk to a captain or coach, or our safeguarding lead (see the <a href="safeguarding.html#safeguarding-contacts">safeguarding policy</a> for contact details).</p>
+      <p>If you're having a really hard time, <strong>Samaritans</strong> are there day or night: call <strong>116 123</strong> for free, or visit <a href="https://www.samaritans.org" target="_blank" rel="noopener">samaritans.org</a>. In an emergency, call <strong>999</strong>.</p>
+    </section>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>London Flame · Women's flag football · Clapham Common, London</span>
+    <span>committee.ldnflame@gmail.com</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="site.js"></script>
+<script src="what-helps.js"></script>
+</body>
+</html>
