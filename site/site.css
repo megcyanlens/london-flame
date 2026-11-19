@@ -265,7 +265,6 @@ figcaption { font-size: 0.85rem; color: var(--muted); margin-top: 0.35rem; }
 .wh-choice input { accent-color: var(--accent); width: 1.05rem; height: 1.05rem; margin: 0; }
 .wh-name { display: grid; gap: 0.35rem; margin-top: 0.3rem; }
 .wh-hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
-.wh-privacy { margin: 0.2rem 0 0; }
 .wh-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
 .wh-submit {
   font: 700 1rem/1 var(--body); color: var(--accent-ink); background: var(--accent);

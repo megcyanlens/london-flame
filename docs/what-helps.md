@@ -1,6 +1,6 @@
 # "What helps" page
 
-https://ldnflame.com/what-helps asks **"What do you need when you're struggling?"**. People type a short answer (up to 200 characters) and either stay anonymous or share their name. Every answer feeds a word cloud on the page.
+https://ldnflame.com/what-helps asks **"What do you need when you're struggling?"**. It was made for a small club workshop. People type a short answer (up to 200 characters) and either stay anonymous or share their name. Every answer goes straight into the word cloud on the page, with no approval step.
 
 It's listed in the sidebar under **Committee**. It's hidden from Google (`noindex`) and isn't in the sitemap, so share the link directly.
 
@@ -9,9 +9,7 @@ It's listed in the sidebar under **Committee**. It's hidden from Google (`noinde
 | Who sees it | What |
 |---|---|
 | Anyone with the link | The word cloud and the number of answers. Never the full answers or names |
-| The committee, via Cloudflare | Every full answer, the time it was sent, and the name **only if the person chose to share it** |
-
-The page tells people this before they submit. Please keep that promise: don't post or share named answers outside the committee.
+| Whoever has access to the Cloudflare account | Every full answer, the time it was sent, and the name **only if the person chose to share it** |
 
 ## How it works
 
