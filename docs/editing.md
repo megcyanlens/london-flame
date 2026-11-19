@@ -13,6 +13,7 @@ Every page is a plain HTML file in `site/`. Open it in any text editor (VS Code 
 | Referee cheat sheet | `site/referee.html` | `/referee` |
 | Reffing tracker | `site/ref-tracker.html` | `/ref-tracker` |
 | Constitution / Safeguarding / Anti-bullying | `site/constitution.html`, `site/safeguarding.html`, `site/anti-bullying.html` | `/constitution` etc. |
+| What do you need? (answers + word cloud) | `site/support.html` + `functions/api/needs.js` | `/support` |
 | Page not found | `site/404.html` | shown for any wrong address |
 
 Shared files: `site/site.css` (all styling), `site/site.js` (the sidebar menu and copy-link buttons), `site/images/` (screenshots, kit photos, logo).
@@ -105,3 +106,11 @@ node icons.js
 
 - Open the changed page in your browser straight from the file (double-click it) and check that it looks right.
 - If you added or renamed a page or section, click its sidebar link.
+
+## The "What do you need?" page (`/support`)
+
+People's answers are saved by a small Cloudflare Pages Function, `functions/api/needs.js`, into a Cloudflare KV store bound to the `ldnflame` project as **`NEEDS`** (Cloudflare → Workers & Pages → `ldnflame` → Settings → Bindings). The page reads them back and draws the word cloud in the browser.
+
+- **Remove an answer:** Cloudflare → Storage & Databases → KV → the `ldnflame-needs` namespace → find the key starting `a:` with that text in its metadata → Delete.
+- Common words (and, the, need, someone's…) are left out of the cloud by the `STOP` list in `site/support.html`.
+- Deploy from the repository's top folder (as in [deploying.md](deploying.md)) so the `functions/` folder is uploaded too.
