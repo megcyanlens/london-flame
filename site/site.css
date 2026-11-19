@@ -285,6 +285,11 @@ figcaption { font-size: 0.85rem; color: var(--muted); margin-top: 0.35rem; }
   .wh-bubble { padding: 0.75rem 0.7rem 0.6rem; }
 }
 
+/* Zoom call links at the bottom of What helps */
+.wh-zoom { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 1rem; }
+.wh-pass { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); }
+.wh-pass code { font: 600 0.95rem/1 ui-monospace, "SFMono-Regular", Consolas, monospace; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 0.25rem 0.4rem; }
+
 /* Answers as speech bubbles, flowing in columns like a wall of notes */
 .wh-bubbles { list-style: none; margin: 1rem 0 0; padding: 0; columns: 17rem; column-gap: 1rem; }
 .wh-bubble {
