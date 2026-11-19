@@ -6,7 +6,7 @@
 <title>What helps · London Flame</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="robots" content="noindex">
-<meta name="description" content="What do you need when you're struggling? Share a few words, anonymously or with your name, and see the club's answers as a word cloud.">
+<meta name="description" content="What do you need when you're struggling? Share your answer, anonymously or with your name, and react to your team's answers.">
 <link rel="canonical" href="https://ldnflame.com/what-helps">
 <meta property="og:url" content="https://ldnflame.com/what-helps">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="London Flame">
 <meta property="og:type" content="website">
 <meta property="og:title" content="What helps · London Flame">
-<meta property="og:description" content="What do you need when you're struggling? Share a few words, anonymously or with your name, and see the club's answers as a word cloud.">
+<meta property="og:description" content="What do you need when you're struggling? Share your answer, anonymously or with your name, and react to your team's answers.">
 <meta property="og:image" content="https://ldnflame.com/images/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,18 +47,17 @@
 
   <main>
     <div class="hero hero-sm">
-      <p class="kicker">London Flame · Committee</p>
+      <p class="kicker">London Flame · Workshop</p>
       <h1>What do you need when you're struggling?</h1>
-      <p class="lede">Share a few words. Every answer adds to the word cloud below, so we can see what support matters most to the club.</p>
     </div>
 
     <section id="share">
       <form class="wh-form" id="wh-form" novalidate>
         <label class="wh-label" for="wh-answer">Your answer</label>
-        <textarea id="wh-answer" name="answer" rows="3" maxlength="200" required
-          placeholder="e.g. someone to check in, a walk, time to talk, space"></textarea>
+        <textarea id="wh-answer" name="answer" rows="4" maxlength="500" required
+          placeholder="e.g. someone to check in on me, a walk, time to talk, a bit of space"></textarea>
         <div class="wh-row">
-          <span class="note" id="wh-count">0 / 200</span>
+          <span class="note" id="wh-count">0 / 500</span>
         </div>
 
         <fieldset class="wh-who">
@@ -78,16 +77,16 @@
         </div>
 
         <div class="wh-actions">
-          <button type="submit" class="wh-submit" id="wh-submit">Add to the cloud</button>
+          <button type="submit" class="wh-submit" id="wh-submit">Share</button>
           <p class="wh-status" id="wh-status" role="status" aria-live="polite"></p>
         </div>
       </form>
     </section>
 
-    <section id="cloud">
-      <h2>What the club said</h2>
+    <section id="answers">
+      <h2>What our team said</h2>
       <p class="note" id="wh-total">Loading answers…</p>
-      <ul class="wh-cloud" id="wh-cloud" aria-label="Most common words in the answers"></ul>
+      <ul class="wh-bubbles" id="wh-bubbles" aria-label="Answers"></ul>
     </section>
   </main>
 </div>

@@ -13,7 +13,7 @@ Every page is a plain HTML file in `site/`. Open it in any text editor (VS Code 
 | Referee cheat sheet | `site/referee.html` | `/referee` |
 | Reffing tracker | `site/ref-tracker.html` | `/ref-tracker` |
 | Constitution / Safeguarding / Anti-bullying | `site/constitution.html`, `site/safeguarding.html`, `site/anti-bullying.html` | `/constitution` etc. |
-| What helps (question + word cloud) | `site/what-helps.html`, `site/what-helps.js` | `/what-helps`; see [what-helps.md](what-helps.md) |
+| What helps (question + answer bubbles) | `site/what-helps.html`, `site/what-helps.js` | `/what-helps`; see [what-helps.md](what-helps.md) |
 | Page not found | `site/404.html` | shown for any wrong address |
 
 Shared files: `site/site.css` (all styling), `site/site.js` (the sidebar menu and copy-link buttons), `site/images/` (screenshots, kit photos, logo).

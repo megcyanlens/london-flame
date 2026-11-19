@@ -1,57 +1,108 @@
 // /api/what-helps
-//   GET  -> word counts for the word cloud (never the raw answers or names)
-//   POST -> save an answer, then return the updated word counts
+//   GET  ?client=<id>                              -> answers (newest first) with 👍 / 🙋 counts, and which ones this device reacted to
+//   POST {action: 'answer', answer, name, anonymous, client}  -> save an answer
+//   POST {action: 'react', id, kind: 'up'|'same', client}     -> toggle this device's reaction on an answer
 // Data lives in the D1 database bound as DB (see wrangler.toml and docs/what-helps.md).
 
 const QUESTION = 'struggling';
-const MAX_ANSWER = 200;
+const MAX_ANSWER = 500;
 const MAX_NAME = 60;
-const MAX_PER_HOUR = 5;
-const MAX_WORDS = 80;
-
-// Words too common to say anything on their own, plus the question's own words
-const STOPWORDS = new Set((
-  'a about after again all also am an and any are as at be because been being but by can could did do does doing done ' +
-  'for from get gets getting go going got had has have having he her here him his how i if im in into is it its ive ' +
-  'just let lets like make me more most much my myself need needs needed no not of off on one only or other our out ' +
-  'over really so some something such than that thats the their them then there these they thing things this those ' +
-  'to too up us very want was way we were what whats when where which while who why will with would you your youre ' +
-  'struggling struggle feel feeling dont cant id ill bit lot maybe even still sometimes always usually'
-).split(' '));
+const MAX_ANSWERS_PER_DEVICE_HOUR = 10;
+const MAX_ANSWERS_PER_IP_HOUR = 150; // a whole workshop room shares one IP on the same Wi-Fi
+const MAX_SHOWN = 300;
+const KINDS = ['up', 'same'];
 
 const json = (data, status = 200) => new Response(JSON.stringify(data), {
   status,
   headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
 });
 
-async function wordCounts(db) {
-  const { results } = await db
-    .prepare('SELECT answer FROM responses WHERE question = ? AND hidden = 0')
-    .bind(QUESTION)
-    .all();
-  const counts = new Map();
-  for (const { answer } of results) {
-    const seen = new Set(); // count each word once per answer, so one long answer can't dominate
-    for (const raw of answer.toLowerCase().replace(/[’']/g, '').split(/[^a-z0-9-]+/)) {
-      const word = raw.replace(/^-+|-+$/g, '');
-      if (word.length < 3 || STOPWORDS.has(word) || /^\d+$/.test(word) || seen.has(word)) continue;
-      seen.add(word);
-      counts.set(word, (counts.get(word) || 0) + 1);
-    }
-  }
-  const words = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, MAX_WORDS);
-  return { total: results.length, words };
+// Random id the browser keeps in localStorage; only used to limit answers and keep one reaction per device
+function cleanClient(value) {
+  const id = String(value || '');
+  return /^[A-Za-z0-9-]{8,64}$/.test(id) ? id : null;
 }
 
-async function clientHash(request) {
+async function ipHash(request) {
   const ip = request.headers.get('cf-connecting-ip') || 'unknown';
   const day = new Date().toISOString().slice(0, 10); // salt changes daily, so hashes can't be linked across days
   const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`ldnflame:${day}:${ip}`));
   return [...new Uint8Array(bytes)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export async function onRequestGet({ env }) {
-  return json(await wordCounts(env.DB));
+async function listAnswers(db, client) {
+  const { results } = await db.prepare(`
+    SELECT r.id, r.answer, r.name, r.created_at,
+      (SELECT COUNT(*) FROM reactions x WHERE x.response_id = r.id AND x.kind = 'up')   AS up,
+      (SELECT COUNT(*) FROM reactions x WHERE x.response_id = r.id AND x.kind = 'same') AS same,
+      (SELECT GROUP_CONCAT(kind) FROM reactions x WHERE x.response_id = r.id AND x.client_id = ?) AS mine
+    FROM responses r
+    WHERE r.question = ? AND r.hidden = 0
+    ORDER BY r.id DESC
+    LIMIT ?`).bind(client || '', QUESTION, MAX_SHOWN).all();
+  return {
+    total: results.length,
+    answers: results.map((r) => ({
+      id: r.id, answer: r.answer, name: r.name, created_at: r.created_at,
+      up: r.up, same: r.same, mine: r.mine ? r.mine.split(',') : [],
+    })),
+  };
+}
+
+export async function onRequestGet({ request, env }) {
+  const client = cleanClient(new URL(request.url).searchParams.get('client'));
+  return json(await listAnswers(env.DB, client));
+}
+
+async function saveAnswer(body, request, env, client) {
+  // Honeypot: a hidden field real people never fill in
+  if (body.website) return json(await listAnswers(env.DB, client));
+
+  const answer = String(body.answer || '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+  if (answer.length < 2) return json({ error: 'Write a few words before sending.' }, 400);
+  if (answer.length > MAX_ANSWER) return json({ error: `Keep it to ${MAX_ANSWER} characters or fewer.` }, 400);
+  const name = body.anonymous ? null : String(body.name || '').replace(/\s+/g, ' ').trim().slice(0, MAX_NAME) || null;
+
+  const hash = await ipHash(request);
+  const recent = await env.DB.prepare(`
+    SELECT
+      (SELECT COUNT(*) FROM responses WHERE client_hash = ?1 AND created_at > datetime('now', '-1 hour')) AS ip,
+      (SELECT COUNT(*) FROM responses WHERE client_id = ?2 AND created_at > datetime('now', '-1 hour')) AS device`)
+    .bind(hash, client || '').first();
+  if (recent.ip >= MAX_ANSWERS_PER_IP_HOUR || (client && recent.device >= MAX_ANSWERS_PER_DEVICE_HOUR)) {
+    return json({ error: "Thanks, you've sent lots already. Try again a bit later." }, 429);
+  }
+
+  const { meta } = await env.DB
+    .prepare('INSERT INTO responses (question, answer, name, client_hash, client_id) VALUES (?, ?, ?, ?, ?)')
+    .bind(QUESTION, answer, name, hash, client)
+    .run();
+  return json({ ok: true, id: meta.last_row_id, ...(await listAnswers(env.DB, client)) });
+}
+
+async function toggleReaction(body, env, client) {
+  if (!client) return json({ error: "Couldn't save your reaction. Refresh the page and try again." }, 400);
+  const id = Number(body.id);
+  const kind = String(body.kind);
+  if (!Number.isInteger(id) || !KINDS.includes(kind)) return json({ error: 'Unknown reaction.' }, 400);
+
+  const exists = await env.DB.prepare('SELECT 1 FROM responses WHERE id = ? AND hidden = 0').bind(id).first();
+  if (!exists) return json({ error: 'That answer is no longer here.' }, 404);
+
+  const del = await env.DB
+    .prepare('DELETE FROM reactions WHERE response_id = ? AND kind = ? AND client_id = ?')
+    .bind(id, kind, client).run();
+  if (!del.meta.changes) {
+    await env.DB.prepare('INSERT OR IGNORE INTO reactions (response_id, kind, client_id) VALUES (?, ?, ?)')
+      .bind(id, kind, client).run();
+  }
+  const counts = await env.DB.prepare(`
+    SELECT
+      (SELECT COUNT(*) FROM reactions WHERE response_id = ?1 AND kind = 'up')   AS up,
+      (SELECT COUNT(*) FROM reactions WHERE response_id = ?1 AND kind = 'same') AS same,
+      (SELECT GROUP_CONCAT(kind) FROM reactions WHERE response_id = ?1 AND client_id = ?2) AS mine`)
+    .bind(id, client).first();
+  return json({ ok: true, id, up: counts.up, same: counts.same, mine: counts.mine ? counts.mine.split(',') : [] });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -61,27 +112,7 @@ export async function onRequestPost({ request, env }) {
   } catch {
     return json({ error: 'Send your answer as JSON.' }, 400);
   }
-
-  // Honeypot: a hidden field real people never fill in
-  if (body.website) return json(await wordCounts(env.DB));
-
-  const answer = String(body.answer || '').replace(/\s+/g, ' ').trim();
-  if (answer.length < 2) return json({ error: 'Write a few words before sending.' }, 400);
-  if (answer.length > MAX_ANSWER) return json({ error: `Keep it to ${MAX_ANSWER} characters or fewer.` }, 400);
-
-  const name = body.anonymous ? null : String(body.name || '').replace(/\s+/g, ' ').trim().slice(0, MAX_NAME) || null;
-
-  const hash = await clientHash(request);
-  const { n } = await env.DB
-    .prepare("SELECT COUNT(*) AS n FROM responses WHERE client_hash = ? AND created_at > datetime('now', '-1 hour')")
-    .bind(hash)
-    .first();
-  if (n >= MAX_PER_HOUR) return json({ error: "Thanks — you've sent a few already. Try again in an hour." }, 429);
-
-  await env.DB
-    .prepare('INSERT INTO responses (question, answer, name, client_hash) VALUES (?, ?, ?, ?)')
-    .bind(QUESTION, answer, name, hash)
-    .run();
-
-  return json({ ok: true, ...(await wordCounts(env.DB)) });
+  const client = cleanClient(body.client);
+  if (body.action === 'react') return toggleReaction(body, env, client);
+  return saveAnswer(body, request, env, client);
 }

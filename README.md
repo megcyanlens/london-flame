@@ -9,7 +9,7 @@ The club website at **https://ldnflame.com**: a plain HTML site (no build step) 
 | Know which account or service runs what (domain, Cloudflare, Google, Instagram, payments) | [docs/services.md](docs/services.md) |
 | Fix or change club email (`committee@ldnflame.com`) | [docs/email.md](docs/email.md) |
 | Update the roster, reffing tracker, committee, fees or any page | [docs/editing.md](docs/editing.md) |
-| Read or manage answers to the "What helps" question | [docs/what-helps.md](docs/what-helps.md) |
+| Read or manage answers on the "What helps" workshop page | [docs/what-helps.md](docs/what-helps.md) |
 | Put my changes live on ldnflame.com | [docs/deploying.md](docs/deploying.md) |
 
 ## What's in this repository
